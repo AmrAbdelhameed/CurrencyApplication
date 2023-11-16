@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Currency Application</string>
+    <string name="go_to_details">Go to details</string>
+</resources>
