@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/fragment_convert_currency"
-        android:name="com.example.currencyapplication.presentation.convert_currency.ConvertCurrencyFragment"
+        android:name="com.example.currencyapplication.presentation.ui.convert_currency.ConvertCurrencyFragment"
         android:label="Convert Currency"
         tools:layout="@layout/fragment_convert_currency" />
 </navigation>

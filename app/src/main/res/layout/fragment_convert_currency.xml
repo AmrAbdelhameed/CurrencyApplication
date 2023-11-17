@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:fillViewport="true"
-        tools:context=".presentation.convert_currency.ConvertCurrencyFragment">
+        tools:context=".presentation.ui.convert_currency.ConvertCurrencyFragment">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -80,6 +80,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/_8sdp"
+                        android:enabled="false"
                         android:inputType="numberDecimal"
                         android:textAlignment="center" />
                 </LinearLayout>
