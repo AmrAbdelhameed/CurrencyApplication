@@ -3,4 +3,7 @@
     <string name="go_to_details">Go to details</string>
     <string name="errorMsg">Something went wrong</string>
     <string name="connectionError">Please check your network connection</string>
+    <string name="other_popular_currencies">Other popular currencies base EUR</string>
+    <string name="historical_list">Historical list\nlast 3 days</string>
+    <string name="graph_label">Currencies</string>
 </resources>

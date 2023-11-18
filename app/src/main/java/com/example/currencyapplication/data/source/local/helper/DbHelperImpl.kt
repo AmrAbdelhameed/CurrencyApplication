@@ -20,8 +20,6 @@ class DbHelperImpl @Inject constructor(private val rateDao: CurrencyDao) : DbHel
         val date = Calendar.getInstance()
         date.add(Calendar.DATE, -3)
         val dateFromThreeDats = date.time
-        return flow {
-            emit(rateDao.getAllCurrencyRates(currentDate, dateFromThreeDats))
-        }.flowOn(IO)
+        return flow { emit(rateDao.getAllCurrencyRates(currentDate, dateFromThreeDats)) }.flowOn(IO)
     }
 }

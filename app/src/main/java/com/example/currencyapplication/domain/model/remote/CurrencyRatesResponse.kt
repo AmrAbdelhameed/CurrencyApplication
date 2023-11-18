@@ -6,5 +6,5 @@ data class CurrencyRatesResponse(
     val rates: Map<String, Double>,
     val timestamp: Int,
     val success: Boolean,
-    val error: Error
+    val error: Error? = null
 )

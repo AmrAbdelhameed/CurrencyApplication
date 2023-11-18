@@ -9,5 +9,15 @@
         android:id="@+id/fragment_convert_currency"
         android:name="com.example.currencyapplication.presentation.ui.convert_currency.ConvertCurrencyFragment"
         android:label="Convert Currency"
-        tools:layout="@layout/fragment_convert_currency" />
+        tools:layout="@layout/fragment_convert_currency">
+
+        <action
+            android:id="@+id/to_currency_details"
+            app:destination="@id/fragment_currency_details" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/fragment_currency_details"
+        android:name="com.example.currencyapplication.presentation.ui.currency_details.CurrencyDetailsFragment"
+        tools:layout="@layout/fragment_currency_details" />
 </navigation>

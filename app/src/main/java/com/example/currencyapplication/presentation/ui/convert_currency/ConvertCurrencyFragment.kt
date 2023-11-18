@@ -3,7 +3,6 @@ package com.example.currencyapplication.presentation.ui.convert_currency
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,12 +12,14 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import com.example.currencyapplication.R
 import com.example.currencyapplication.databinding.FragmentConvertCurrencyBinding
 import com.example.currencyapplication.domain.model.remote.CurrencyRatesResponse
 import com.example.currencyapplication.presentation.ui.convert_currency.intent.ConvertCurrencyIntent
 import com.example.currencyapplication.presentation.ui.convert_currency.viewstate.ConvertCurrencyState
-import com.example.currencyapplication.presentation.utils.EspressoIdlingResource
+import com.example.currencyapplication.presentation.utils.Constants
+import com.example.currencyapplication.presentation.utils.navigateSafe
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -30,33 +31,16 @@ class ConvertCurrencyFragment : Fragment(), AdapterView.OnItemSelectedListener,
     private val binding get() = _binding!!
     private val viewModel: ConvertCurrencyViewModel by viewModels()
 
+    private var isAbleToInsert: Boolean = false
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentConvertCurrencyBinding.inflate(inflater, container, false)
-        return binding.root
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putInt("fromPosition", viewModel.fromPosition)
-        outState.putString("fromValue", viewModel.fromValue)
-        outState.putInt("toPosition", viewModel.toPosition)
-        outState.putString("toValue", viewModel.toValue)
-    }
-
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-
-        if (savedInstanceState != null) {
-            viewModel.fromPosition = savedInstanceState.getInt("fromPosition", 0);
-            viewModel.fromValue = savedInstanceState.getString("fromValue", "1");
-            viewModel.toPosition = savedInstanceState.getInt("toPosition", 0);
-            viewModel.toValue = savedInstanceState.getString("toValue", "");
-        } else {
-            lifecycleScope.launch { viewModel.convertCurrencyIntent.send(ConvertCurrencyIntent.FetchRates) }
+        if (_binding == null) {
+            _binding = FragmentConvertCurrencyBinding.inflate(inflater, container, false)
         }
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -71,6 +55,9 @@ class ConvertCurrencyFragment : Fragment(), AdapterView.OnItemSelectedListener,
         binding.fromSpinner.onItemSelectedListener = this
         binding.toSpinner.onItemSelectedListener = this
 
+        binding.fromEditText.setOnFocusChangeListener { _, _ -> isAbleToInsert = true }
+        binding.toEditText.setOnFocusChangeListener { _, _ -> isAbleToInsert = true }
+
         binding.fromEditText.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) =
                 Unit
@@ -80,10 +67,10 @@ class ConvertCurrencyFragment : Fragment(), AdapterView.OnItemSelectedListener,
             override fun afterTextChanged(editable: Editable?) {
                 val str = editable?.toString()
                 if (str?.isNotEmpty() == true) {
-                    viewModel.fromValue = str
+                    viewModel.currencyConvert.fromValue = str
                     binding.toEditText.setText(viewModel.getConversionResult())
                 } else {
-                    binding.fromEditText.setText("1")
+                    binding.fromEditText.setText(fromDefaultValue)
                 }
             }
         })
@@ -97,9 +84,12 @@ class ConvertCurrencyFragment : Fragment(), AdapterView.OnItemSelectedListener,
             override fun afterTextChanged(editable: Editable?) {
                 val str = editable?.toString()
                 if (str?.isNotEmpty() == true) {
-                    viewModel.toValue = str
-                    if (viewModel.fromPosition != viewModel.toPosition) {
-                        viewModel.addRate()
+                    viewModel.currencyConvert.toValue = str
+                    if (isAbleToInsert && viewModel.currencyConvert.fromPosition != viewModel.currencyConvert.toPosition) {
+                        lifecycleScope.launch {
+                            viewModel.convertCurrencyIntent.send(ConvertCurrencyIntent.InsertCurrencyConvert)
+                        }
+                        isAbleToInsert = false
                     }
                 }
             }
@@ -133,43 +123,65 @@ class ConvertCurrencyFragment : Fragment(), AdapterView.OnItemSelectedListener,
     }
 
     private fun setAdapters(currencyRatesResponse: CurrencyRatesResponse? = null) {
-        val currencyDataItemList = ArrayList<CurrencyDataItem>()
-        currencyRatesResponse!!.rates.forEach {
-            currencyDataItemList.add(CurrencyDataItem(name = it.key, rateValue = it.value))
-        }
-
-        val rateAdapter: ArrayAdapter<CurrencyDataItem> =
-            ArrayAdapter(
-                requireContext(),
-                android.R.layout.simple_spinner_item,
-                currencyDataItemList
+        val currencyDataItemList: ArrayList<CurrencyDataItem> = currencyRatesResponse?.rates?.map {
+            CurrencyDataItem(
+                name = it.key,
+                rateValue = it.value
             )
+        } as ArrayList<CurrencyDataItem>
+
+        val rateAdapter = ArrayAdapter(
+            requireContext(),
+            android.R.layout.simple_spinner_item,
+            currencyDataItemList
+        )
 
         rateAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
 
         binding.fromSpinner.adapter = rateAdapter
         binding.toSpinner.adapter = rateAdapter
 
-        binding.fromEditText.setText("1")
-
-        EspressoIdlingResource.decrement()
+        binding.fromEditText.setText(fromDefaultValue)
     }
 
     override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
         when (parent?.id) {
             R.id.from_spinner -> {
+                isAbleToInsert = true
                 viewModel.from = parent.selectedItem as CurrencyDataItem
-                viewModel.fromPosition = position
+                viewModel.currencyConvert.fromPosition = position
             }
 
             R.id.to_spinner -> {
+                isAbleToInsert = true
                 viewModel.to = parent.selectedItem as CurrencyDataItem
-                viewModel.toPosition = position
+                viewModel.currencyConvert.toPosition = position
             }
         }
 
         if (viewModel.from.name.isNotEmpty()) {
             binding.toEditText.setText(viewModel.getConversionResult())
+        }
+    }
+
+    override fun onClick(v: View?) {
+        when (v?.id) {
+            R.id.swap_btn -> {
+                binding.fromSpinner.setSelection(viewModel.currencyConvert.toPosition)
+                binding.fromEditText.setText(viewModel.currencyConvert.toValue)
+                binding.toSpinner.setSelection(viewModel.currencyConvert.fromPosition)
+                binding.toEditText.setText(viewModel.currencyConvert.fromValue)
+            }
+
+            R.id.details_btn -> {
+                val bundle = Bundle()
+                bundle.putParcelableArrayList(
+                    Constants.BundleArguments.POPULAR_CURRENCIES,
+                    viewModel.popularList
+                )
+
+                findNavController().navigateSafe(R.id.to_currency_details, bundle)
+            }
         }
     }
 
@@ -183,28 +195,48 @@ class ConvertCurrencyFragment : Fragment(), AdapterView.OnItemSelectedListener,
         binding.progressBar.visibility = View.GONE
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putInt(
+            Constants.BundleArguments.FROM_POSITION,
+            viewModel.currencyConvert.fromPosition
+        )
+        outState.putString(
+            Constants.BundleArguments.FROM_VALUE,
+            viewModel.currencyConvert.fromValue
+        )
+        outState.putInt(Constants.BundleArguments.TO_POSITION, viewModel.currencyConvert.toPosition)
+        outState.putString(Constants.BundleArguments.TO_VALUE, viewModel.currencyConvert.toValue)
     }
 
-    override fun onClick(v: View?) {
-        when (v?.id) {
-            R.id.swap_btn -> {
-                binding.fromSpinner.setSelection(viewModel.toPosition)
-                binding.fromEditText.setText(viewModel.toValue)
-                binding.toSpinner.setSelection(viewModel.fromPosition)
-                binding.toEditText.setText(viewModel.fromValue)
-            }
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
 
-            R.id.details_btn -> {
-                val bundle = Bundle()
-                bundle.putParcelableArrayList("PopularCurrencies", viewModel.popularList)
-
-                viewModel.popularList.forEach {
-                    Log.d("TAG", "initUI: ${it.name}: ${it.rateValue}")
+        if (savedInstanceState != null) {
+            viewModel.currencyConvert.fromPosition = savedInstanceState.getInt(
+                Constants.BundleArguments.FROM_POSITION, 0
+            );
+            viewModel.currencyConvert.fromValue = savedInstanceState.getString(
+                Constants.BundleArguments.FROM_VALUE,
+                fromDefaultValue
+            );
+            viewModel.currencyConvert.toPosition = savedInstanceState.getInt(
+                Constants.BundleArguments.TO_POSITION, 0
+            );
+            viewModel.currencyConvert.toValue = savedInstanceState.getString(
+                Constants.BundleArguments.TO_VALUE, ""
+            );
+        } else {
+            if (viewModel.currencyConvert.toValue.isEmpty()) {
+                lifecycleScope.launch {
+                    viewModel.convertCurrencyIntent.send(ConvertCurrencyIntent.FetchRates)
                 }
             }
         }
+    }
+
+    companion object {
+        private const val fromDefaultValue = "1"
     }
 }

@@ -18,5 +18,4 @@ interface CurrencyDao {
 
     @Query("Select * from convert_currency where createdAt BETWEEN :to AND :currentDate")
     fun getAllCurrencyRates(currentDate: Date, to: Date): List<ConvertCurrency>
-
 }
