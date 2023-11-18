@@ -1,5 +1,7 @@
 package com.example.currencyapplication.presentation.ui.convert_currency
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.currencyapplication.data.source.remote.Resource
@@ -34,9 +36,24 @@ class ConvertCurrencyViewModel @Inject constructor(
 
     val currencyConvert = CurrencyConvert()
 
+    val isProgressbarVisibleLiveData = MutableLiveData<Boolean>()
+
+    private val _currencyDataItemList = MutableLiveData<List<CurrencyDataItem>>()
+    val currencyDataItemList: LiveData<List<CurrencyDataItem>>
+        get() = _currencyDataItemList
+
+    fun setCurrencyDataItemList(currencyRatesResponse: CurrencyRatesResponse) {
+        _currencyDataItemList.value = currencyRatesResponse.rates.map {
+            CurrencyDataItem(
+                name = it.key,
+                rateValue = it.value
+            )
+        }
+    }
+
     val popularList = ArrayList<CurrencyDataItem>()
 
-    private fun getPopularList(rates: Map<String, Double>) {
+    private fun setPopularList(rates: Map<String, Double>) {
         popularList.clear()
         popularList.addAll(Utils.getPopularList(rates))
     }
@@ -64,7 +81,7 @@ class ConvertCurrencyViewModel @Inject constructor(
                     val currencyRatesResponse: CurrencyRatesResponse? = resource.data
 
                     if (currencyRatesResponse?.success == true) {
-                        getPopularList(currencyRatesResponse.rates)
+                        setPopularList(currencyRatesResponse.rates)
                         ConvertCurrencyState.Success(currencyRatesResponse)
                     } else {
                         ConvertCurrencyState.Error(currencyRatesResponse?.error?.info)

@@ -27,8 +27,9 @@
             android:layout_width="match_parent"
             android:layout_height="@dimen/_150sdp"
             android:layout_marginTop="@dimen/_4sdp"
-            app:layout_constraintTop_toTopOf="parent"
-            app:submitList="@{currencyDetailViewModel.chartList}" />
+            app:items="@{currencyDetailViewModel.chartList}"
+            app:label="@{@string/graph_label}"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideline"

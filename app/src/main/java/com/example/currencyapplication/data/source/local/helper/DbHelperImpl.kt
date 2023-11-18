@@ -10,16 +10,25 @@ import java.util.Calendar
 import java.util.Date
 import javax.inject.Inject
 
-class DbHelperImpl @Inject constructor(private val rateDao: CurrencyDao) : DbHelper {
-    override suspend fun insertConvertCurrency(rateModel: ConvertCurrency) {
-        rateDao.insertConvertCurrency(rateModel)
-    }
+class DbHelperImpl @Inject constructor(private val currencyDao: CurrencyDao) : DbHelper {
+    override suspend fun insertConvertCurrency(
+        convertCurrency: ConvertCurrency
+    ) = currencyDao.insertConvertCurrency(convertCurrency)
 
     override suspend fun getAllCurrencyRates(): Flow<List<ConvertCurrency>> {
         val currentDate = Date(System.currentTimeMillis())
+
         val date = Calendar.getInstance()
         date.add(Calendar.DATE, -3)
         val dateFromThreeDats = date.time
-        return flow { emit(rateDao.getAllCurrencyRates(currentDate, dateFromThreeDats)) }.flowOn(IO)
+
+        return flow {
+            emit(
+                currencyDao.getAllCurrencyRates(
+                    currentDate,
+                    dateFromThreeDats
+                )
+            )
+        }.flowOn(IO)
     }
 }

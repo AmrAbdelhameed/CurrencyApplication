@@ -5,6 +5,9 @@
 
     <data>
 
+        <variable
+            name="convertCurrencyViewModel"
+            type="com.example.currencyapplication.presentation.ui.convert_currency.ConvertCurrencyViewModel" />
     </data>
 
     <ScrollView
@@ -38,7 +41,8 @@
                         android:id="@+id/from_spinner"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:textAlignment="center" />
+                        android:textAlignment="center"
+                        app:submitList="@{convertCurrencyViewModel.currencyDataItemList}" />
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/from_edit_text"
@@ -73,7 +77,8 @@
                         android:id="@+id/to_spinner"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:textAlignment="center" />
+                        android:textAlignment="center"
+                        app:submitList="@{convertCurrencyViewModel.currencyDataItemList}" />
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/to_edit_text"
@@ -100,6 +105,7 @@
             <androidx.core.widget.ContentLoadingProgressBar
                 android:id="@+id/progress_bar"
                 style="?android:attr/progressBarStyle"
+                manageState="@{convertCurrencyViewModel.isProgressbarVisibleLiveData}"
                 android:layout_width="@dimen/_50sdp"
                 android:layout_height="@dimen/_50sdp"
                 android:visibility="gone"

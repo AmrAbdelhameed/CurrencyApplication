@@ -35,24 +35,3 @@ fun NavController.navigateSafe(@IdRes resId: Int, args: Bundle? = null) {
         }
     }
 }
-
-fun LineChart.displayLineChartData(items: List<Double>) {
-    val lineValues = ArrayList<Entry>()
-    var yAxis = 0.0f
-
-    for (item in items) {
-        lineValues.add(Entry(yAxis, item.toFloat()))
-        yAxis += 1F
-    }
-
-    val lineDataSet = LineDataSet(lineValues, this.context?.getString(R.string.graph_label))
-    lineDataSet.circleRadius = 10f
-    lineDataSet.setDrawFilled(true)
-    lineDataSet.valueTextSize = 20F
-    lineDataSet.mode = LineDataSet.Mode.CUBIC_BEZIER
-
-    val data = LineData(lineDataSet)
-
-    this.data = data
-    this.animateXY(2000, 2000, Easing.EaseInCubic)
-}

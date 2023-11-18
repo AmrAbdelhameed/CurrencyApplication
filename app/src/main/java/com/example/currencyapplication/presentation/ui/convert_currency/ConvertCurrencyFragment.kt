@@ -39,6 +39,10 @@ class ConvertCurrencyFragment : Fragment(), AdapterView.OnItemSelectedListener,
     ): View {
         if (_binding == null) {
             _binding = FragmentConvertCurrencyBinding.inflate(inflater, container, false)
+            _binding?.apply {
+                convertCurrencyViewModel = viewModel
+                lifecycleOwner = activity
+            }
         }
         return binding.root
     }
@@ -110,7 +114,10 @@ class ConvertCurrencyFragment : Fragment(), AdapterView.OnItemSelectedListener,
 
                     is ConvertCurrencyState.Success -> {
                         hideLoading()
-                        setAdapters(it.data)
+                        if (it.data != null) {
+                            viewModel.setCurrencyDataItemList(it.data)
+                            binding.fromEditText.setText(fromDefaultValue)
+                        }
                     }
 
                     is ConvertCurrencyState.Error -> {
@@ -120,28 +127,6 @@ class ConvertCurrencyFragment : Fragment(), AdapterView.OnItemSelectedListener,
                 }
             }
         }
-    }
-
-    private fun setAdapters(currencyRatesResponse: CurrencyRatesResponse? = null) {
-        val currencyDataItemList: ArrayList<CurrencyDataItem> = currencyRatesResponse?.rates?.map {
-            CurrencyDataItem(
-                name = it.key,
-                rateValue = it.value
-            )
-        } as ArrayList<CurrencyDataItem>
-
-        val rateAdapter = ArrayAdapter(
-            requireContext(),
-            android.R.layout.simple_spinner_item,
-            currencyDataItemList
-        )
-
-        rateAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-
-        binding.fromSpinner.adapter = rateAdapter
-        binding.toSpinner.adapter = rateAdapter
-
-        binding.fromEditText.setText(fromDefaultValue)
     }
 
     override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
@@ -188,13 +173,12 @@ class ConvertCurrencyFragment : Fragment(), AdapterView.OnItemSelectedListener,
     override fun onNothingSelected(parent: AdapterView<*>?) = Unit
 
     private fun showLoading() {
-        binding.progressBar.visibility = View.VISIBLE
+        viewModel.isProgressbarVisibleLiveData.value = true
     }
 
     private fun hideLoading() {
-        binding.progressBar.visibility = View.GONE
+        viewModel.isProgressbarVisibleLiveData.value = false
     }
-
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
