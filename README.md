@@ -2,9 +2,9 @@
 
 <br>
 <p align="center">
-    <img src="p1.jpg" width="250"/>
-    <img src="p2.jpg" width="250"/>
-    <img src="p3.jpg" width="250"/>
+    <img src="p1.png" width="250"/>
+    <img src="p2.png" width="250"/>
+    <img src="p3.png" width="250"/>
 </p>
 <br>
 
