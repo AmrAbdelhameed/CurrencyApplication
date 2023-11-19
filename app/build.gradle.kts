@@ -1,5 +1,6 @@
 import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
 
+@Suppress("DSL_SCOPE_VIOLATION")
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -39,12 +40,16 @@ android {
         jvmTarget = "1.8"
     }
     buildFeatures {
-        buildConfig = true
         viewBinding = true
         dataBinding = true
+        buildConfig = true
     }
     defaultConfig {
-        buildConfigField("String", "BASE_URL", "\"http://data.fixer.io\"")
+        buildConfigField(
+            "String",
+            "BASE_URL",
+            "\"${gradleLocalProperties(rootDir).getProperty("BASE_URL")}\""
+        )
         buildConfigField(
             "String",
             "ACCESS_KEY",
@@ -68,17 +73,15 @@ dependencies {
     implementation(libs.hilt.android)
     kapt(libs.hilt.android.compiler)
 
-    implementation(libs.retrofit)
-    implementation(libs.converter.gson)
-    implementation(libs.logging.interceptor)
-
-    implementation(libs.converter.moshi)
-    implementation(libs.retrofit2.kotlin.coroutines.adapter)
-
     implementation(libs.lifecycle.viewmodel.ktx)
     implementation(libs.lifecycle.livedata.ktx)
     implementation(libs.lifecycle.common.java8)
     implementation(libs.lifecycle.extensions)
+
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
+    implementation(libs.converter.moshi)
+    implementation(libs.retrofit2.kotlin.coroutines.adapter)
 
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines.android)

@@ -42,10 +42,12 @@ class CurrencyDetailsFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentCurrencyDetailsBinding.inflate(inflater, container, false)
-        _binding?.apply {
-            currencyDetailViewModel = viewModel
-            lifecycleOwner = activity
+        if (_binding == null) {
+            _binding = FragmentCurrencyDetailsBinding.inflate(inflater, container, false)
+            _binding?.apply {
+                currencyDetailViewModel = viewModel
+                lifecycleOwner = activity
+            }
         }
         return binding.root
     }
@@ -55,10 +57,5 @@ class CurrencyDetailsFragment : Fragment() {
 
         binding.currencyAdapter = currencyAdapter
         binding.currencyPopularAdapter = currencyPopularAdapter
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
     }
 }

@@ -51,7 +51,6 @@
                         android:layout_marginTop="@dimen/_8sdp"
                         android:inputType="numberDecimal"
                         android:textAlignment="center" />
-
                 </LinearLayout>
 
                 <androidx.appcompat.widget.AppCompatImageButton

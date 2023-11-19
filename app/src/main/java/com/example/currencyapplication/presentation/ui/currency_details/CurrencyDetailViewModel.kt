@@ -34,9 +34,9 @@ class CurrencyDetailViewModel @Inject constructor(
 
     fun getHistoricalData() {
         viewModelScope.launch {
-            historicalUseCase.invoke().collect { rates ->
-                _chartList.value = rates.map { it.toValue }
-                _historyList.value = rates.map { it.mapToConvertCurrencyDataItem() }
+            historicalUseCase.invoke().collect { currencies ->
+                _chartList.value = currencies.map { it.toValue }
+                _historyList.value = currencies.map { it.mapToConvertCurrencyDataItem() }
             }
         }
     }

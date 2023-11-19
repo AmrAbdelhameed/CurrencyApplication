@@ -4,6 +4,6 @@ import com.example.currencyapplication.domain.model.local.ConvertCurrency
 import kotlinx.coroutines.flow.Flow
 
 interface DbHelper {
-    suspend fun insertConvertCurrency(rateModel: ConvertCurrency)
+    suspend fun insertConvertCurrency(convertCurrency: ConvertCurrency)
     suspend fun getAllCurrencyRates(): Flow<List<ConvertCurrency>>
 }

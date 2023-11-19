@@ -30,8 +30,8 @@ object AppModule {
 
     @Singleton
     @Provides
-    fun provideDbHelper(rateDao: CurrencyDao): DbHelper {
-        return DbHelperImpl(rateDao)
+    fun provideDbHelper(currencyDao: CurrencyDao): DbHelper {
+        return DbHelperImpl(currencyDao)
     }
 
     @Singleton

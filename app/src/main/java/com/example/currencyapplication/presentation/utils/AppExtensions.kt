@@ -1,15 +1,12 @@
 package com.example.currencyapplication.presentation.utils
 
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import androidx.annotation.IdRes
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph
-import com.example.currencyapplication.R
-import com.github.mikephil.charting.animation.Easing
-import com.github.mikephil.charting.charts.LineChart
-import com.github.mikephil.charting.data.Entry
-import com.github.mikephil.charting.data.LineData
-import com.github.mikephil.charting.data.LineDataSet
+import com.google.android.material.textfield.TextInputEditText
 import java.math.RoundingMode
 import java.text.DecimalFormat
 
@@ -34,4 +31,16 @@ fun NavController.navigateSafe(@IdRes resId: Int, args: Bundle? = null) {
             currentNode?.findNode(destinationId)?.let { navigate(resId, args) }
         }
     }
+}
+
+fun TextInputEditText.addTextChangedListener(changed: (str: String?) -> Unit) {
+    this.addTextChangedListener(object : TextWatcher {
+        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
+
+        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) = Unit
+
+        override fun afterTextChanged(editable: Editable?) {
+            changed(editable?.toString())
+        }
+    })
 }

@@ -31,12 +31,14 @@ class ConvertCurrencyViewModel @Inject constructor(
     private val _state = MutableStateFlow<ConvertCurrencyState>(ConvertCurrencyState.Idle)
     val state: StateFlow<ConvertCurrencyState> = _state
 
-    var from = CurrencyDataItem()
-    var to = CurrencyDataItem()
+    var fromCurrencyDataItem = CurrencyDataItem()
+    var toCurrencyDataItem = CurrencyDataItem()
 
     val currencyConvert = CurrencyConvert()
 
     val isProgressbarVisibleLiveData = MutableLiveData<Boolean>()
+
+    var isInsertionEnabled: Boolean = false
 
     private val _currencyDataItemList = MutableLiveData<List<CurrencyDataItem>>()
     val currencyDataItemList: LiveData<List<CurrencyDataItem>>
@@ -95,12 +97,12 @@ class ConvertCurrencyViewModel @Inject constructor(
     }
 
     private fun insertConvertCurrency() {
-        if (currencyConvert.fromValue.isNotEmpty() && currencyConvert.toValue.isNotEmpty()) {
+        if (isInsertionEnabled && currencyConvert.fromValue.isNotEmpty() && currencyConvert.toValue.isNotEmpty()) {
             viewModelScope.launch {
                 insertConvertCurrencyUseCase.invoke(
                     ConvertCurrency(
-                        fromName = from.name,
-                        toName = to.name,
+                        fromName = fromCurrencyDataItem.name,
+                        toName = toCurrencyDataItem.name,
                         fromValue = currencyConvert.fromValue.toDouble(),
                         toValue = currencyConvert.toValue.toDouble(),
                         createdAt = Date()
@@ -111,7 +113,7 @@ class ConvertCurrencyViewModel @Inject constructor(
     }
 
     private fun getExchangeRate(amount: Double): Double {
-        return (amount * to.rateValue) / from.rateValue
+        return (amount * toCurrencyDataItem.rateValue) / fromCurrencyDataItem.rateValue
     }
 
     fun getConversionResult(): String {
